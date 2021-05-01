@@ -13,10 +13,12 @@ const Container = styled.div`
   margin-top: ${(props) => (props.theme.screens.lg ? "80px" : "37px")};
   padding: ${(props) =>
     props.theme.screens.lg ? "70px 0 105px 0" : "222px 0 150px 0"};
-  background: ${(props) =>
-    props.theme.screens.lg
-      ? "url('/download-mobile.svg') 50% 0% no-repeat"
-      : "url('/download-desktop.svg') 50% 0% no-repeat"};
+  background-image: ${(props) => props.theme.screens.lg
+    ? `url("data:image/svg+xml,%3Csvg width='360' height='545' viewBox='0 0 360 545' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M361 545H-1L-1 5.86719C53.1667 14.3672 109 32.3672 208 10.8672C270.3 -2.6626 344.833 -2.63281 361 5.86719V545Z' fill='%23FECE51'/%3E%3C/svg%3E%0A")`
+    : `url("data:image/svg+xml,%3Csvg width='1920' height='672' viewBox='0 0 1920 672' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1923 476H-3V0C-3 0 340.941 0.336525 568.5 49.9365C796.059 99.5365 1006.5 99.6086 1325 59.5806C1643.5 19.5526 1923 10.8813 1923 10.8813V476Z' fill='%23FECE51'/%3E%3Cpath d='M0 476H1920V672H0V476Z' fill='%23FECE51'/%3E%3C/svg%3E%0A")`
+  };
+  background-position: 50% 0;
+  background-repeat: no-repeat;
   background-size: cover;
 `;
 
