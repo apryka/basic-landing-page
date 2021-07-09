@@ -1,8 +1,9 @@
 import React from "react";
-import { graphql, useStaticQuery, Link } from "gatsby";
+import { graphql, useStaticQuery } from "gatsby";
 import Img from "gatsby-image";
 import BackgroundImage from "gatsby-background-image";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { motion } from 'framer-motion';
 import { useBreakpoint } from "gatsby-plugin-breakpoints";
 
 import { Layout } from "../components/layout";
@@ -12,6 +13,7 @@ import { Download } from "../components/download";
 import { Headline } from "../components/headline";
 import { Subheader } from "../components/subheader";
 import { Button } from "../components/button";
+import { GhostButton } from "../components/ghost-button";
 import { List } from "../components/list";
 import { Text } from "../components/text";
 import { Container } from "../components/container";
@@ -20,6 +22,8 @@ import ScanIcon from "../images/svg/scan-icon.svg";
 import CardIcon from "../images/svg/card-icon.svg";
 import RewardIcon from "../images/svg/reward-icon.svg";
 import DownloadIcon from "../images/svg/download-icon.svg";
+import PodiumIcon from "../images/svg/podium-icon.svg";
+import TrophyIcon from "../images/svg/trophy-icon.svg";
 
 const LogoContainer = styled.div`
   text-align: ${(props) => (props.theme.screens.lg ? "center" : "left")};
@@ -101,6 +105,142 @@ const DesktopImage = styled.div`
   width: 48%;
 `;
 
+const RewardGrid = styled.div`
+  display: flex;
+  grid-gap: 30px;
+  flex-direction: ${(props) => (props.theme.screens.lg ? "column" : "row")};
+  margin-bottom: 90px;
+`;
+
+const RewardGridItem = styled.div`
+  flex: 1;
+  text-align: center;
+  font-family: Poppins, sans-serif;
+  font-size: 18px;
+  line-height: 27px;
+  color: #532800;
+`;
+
+const RewardGridText = styled.p`
+  margin: 20px 0 0 0;
+`;
+
+const StyledTable = styled.table`
+  border-collapse: collapse;
+  width: 100%;
+`;
+
+const TableHeader = styled.thead``;
+
+const TableHeaderCell = styled.th`
+  font-family: Poppins, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 700;
+  color: #532800;
+  text-align: left;
+  padding: 10px 0;
+
+  &:first-child {
+    padding-left: 35px;
+    padding-right: 35px;
+  }
+`;
+
+const TableRow = styled.tr``;
+
+const TableCell = styled(motion.td)`
+  font-family: Poppins, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  color: #532800;
+  font-weight: 700;
+  padding: 20px 0;
+
+  &:first-child {
+    padding-left: 35px;
+    padding-right: 35px;
+  }
+
+  &:last-child {
+    font-weight: 400;
+  }
+`;
+
+const TableBody = styled.tbody`
+  ${TableRow} {
+    &:first-child {
+      background: rgba(254, 206, 81, 0.15);
+      border: 1px solid #FECE51;
+    }
+    &:nth-child(2) {
+      background: rgba(254, 206, 81, 0.08);
+    }
+    &:nth-child(n+2) {
+      ${TableCell} {
+        border-bottom: 1px solid #E5E5E5;
+      }
+    }
+  }
+`;
+
+const NickAt = styled.span`
+  color: #FECE51;
+`;
+
+const TableButtonContainer = styled.div`
+  text-align: center;
+  margin-top: 40px;
+`;
+
+const Rewards = styled.div`
+  display: flex;
+  flex-direction: ${(props) => (props.theme.screens.lg ? "column" : "row")};
+  gap: 80px;
+`;
+
+const RewardItem = styled.div<{ isWinner?: boolean }>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  ${(props) => {
+    if (props.isWinner) {
+      if (props.theme.screens.lg) {
+        return css`order: -1`;
+      }
+      return css`margin-bottom: 60px`;
+    }
+  }};
+`;
+
+const RewardSeparator = styled.div`
+  margin: auto;
+  width: 200px;
+  height: 7px;
+  border-radius: 14px;
+  background-color: #FECE51;
+`;
+
+const RewardPosition = styled.div`
+  margin-top: 30px;
+  margin-bottom: 5px;
+  color: #FECE51;
+  font-family: Poppins, sans-serif;
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 33px;
+`;
+
+const RewardName = styled.div`
+  font-family: Poppins, sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 27px;
+  color: #532800;
+  text-align: center;
+`;
+
 const App = () => {
   const query = useStaticQuery(graphql`
     query {
@@ -159,10 +299,44 @@ const App = () => {
           }
         }
       }
+      reward: allFile(
+        filter: { extension: { eq: "png" }, name: { regex: "/reward/" } }
+      ) {
+        edges {
+          node {
+            childImageSharp {
+              fixed(quality: 100, width: 218) {
+                ...GatsbyImageSharpFixed_withWebp
+              }
+            }
+          }
+        }
+      }
     }
   `);
 
   const breakpoints = useBreakpoint();
+  const [isTableCollapsed, setTableCollapsed] = React.useState(false);
+  const refTable = React.useRef<HTMLTableElement>(null);
+
+  React.useEffect(() => {
+    if (refTable.current) {
+      const tableRows = Array.from(refTable.current.querySelectorAll('tbody tr') as NodeListOf<HTMLElement>);
+      tableRows.forEach((row, idx) => {
+        if (idx === 5 && isTableCollapsed) {
+          row.style.opacity = '0.25';
+        } else {
+          row.style.opacity = '1';
+        }
+        if (idx > 5 && isTableCollapsed) {
+          row.style.display = 'none';
+        } else {
+          row.style.display = 'table-row';
+        }
+      });
+    }
+
+  }, [refTable, isTableCollapsed]);
 
   const sectionFluid = breakpoints.lg
     ? [
@@ -403,6 +577,168 @@ const App = () => {
             </DesktopImageGrid>
           </DesktopGrid>
         )}
+        <Subheader
+          marginTop={breakpoints.lg ? 80 : 140}
+          marginBottom={6}
+          textAlign="center"
+        >
+            LISTA TOP 20
+        </Subheader>
+        <Headline
+          marginBottom={breakpoints.lg ? 20 : 110}
+          color="#532800"
+          textAlign="center"
+          fontSize={breakpoints.lg ? "30px" : "36px"}
+        >
+          <strong>KORZYSTAJ Z APLIKACJI,</strong><br/>ODBIERAJ DODATKOWE NAGRODY
+        </Headline>
+        <RewardGrid>
+          <RewardGridItem>
+            <ScanIcon />
+            <RewardGridText>Kupując uSzwagra korzystaj z naszej aplikacji i zbieraj punkty</RewardGridText>
+          </RewardGridItem>
+          <RewardGridItem>
+            <PodiumIcon />
+            <RewardGridText>Co kwartał rozdajemy dodatkowe nagrody dla top 3 użytkowników, którzy zdobyli najwięcej punktów w&nbsp;tym okresie</RewardGridText>
+          </RewardGridItem>
+          <RewardGridItem>
+            <TrophyIcon />
+            <RewardGridText>Wchodź na naszą stronę i sprawdzaj jakie miejsce obecnie zajmujesz, rywalizuj z innymi i sięgaj po nagrody!</RewardGridText>
+          </RewardGridItem>
+        </RewardGrid>
+        <Subheader
+          marginTop={breakpoints.lg ? 80 : 140}
+          marginBottom={6}
+          textAlign="left"
+        >
+            LISTA TOP 20
+        </Subheader>
+        <Headline
+          marginBottom={breakpoints.lg ? 20 : 60}
+          color="#532800"
+          textAlign="left"
+          fontSize={breakpoints.lg ? "30px" : "36px"}
+        >
+          <strong>TABELA WYNIKÓW</strong>
+        </Headline>
+        <StyledTable ref={refTable}>
+          <TableHeader>
+            <TableRow>
+              <TableHeaderCell>Miejsce</TableHeaderCell>
+              <TableHeaderCell>Użytkownik</TableHeaderCell>
+              <TableHeaderCell>Ilość pieczątek</TableHeaderCell>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell>1.</TableCell>
+              <TableCell><NickAt>@</NickAt>nazwa_uzytkownika</TableCell>
+              <TableCell>24</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>2.</TableCell>
+              <TableCell><NickAt>@</NickAt>nazwa_uzytkownika</TableCell>
+              <TableCell>24</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>3.</TableCell>
+              <TableCell><NickAt>@</NickAt>nazwa_uzytkownika</TableCell>
+              <TableCell>24</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>4.</TableCell>
+              <TableCell><NickAt>@</NickAt>nazwa_uzytkownika</TableCell>
+              <TableCell>24</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>5.</TableCell>
+              <TableCell><NickAt>@</NickAt>nazwa_uzytkownika</TableCell>
+              <TableCell>24</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>6.</TableCell>
+              <TableCell><NickAt>@</NickAt>nazwa_uzytkownika</TableCell>
+              <TableCell>24</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>7.</TableCell>
+              <TableCell><NickAt>@</NickAt>nazwa_uzytkownika</TableCell>
+              <TableCell>24</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>8.</TableCell>
+              <TableCell><NickAt>@</NickAt>nazwa_uzytkownika</TableCell>
+              <TableCell>24</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>9.</TableCell>
+              <TableCell><NickAt>@</NickAt>nazwa_uzytkownika</TableCell>
+              <TableCell>24</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>10.</TableCell>
+              <TableCell><NickAt>@</NickAt>nazwa_uzytkownika</TableCell>
+              <TableCell>24</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>11.</TableCell>
+              <TableCell><NickAt>@</NickAt>nazwa_uzytkownika</TableCell>
+              <TableCell>24</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>12.</TableCell>
+              <TableCell><NickAt>@</NickAt>nazwa_uzytkownika</TableCell>
+              <TableCell>24</TableCell>
+            </TableRow>
+          </TableBody>
+        </StyledTable>
+        <TableButtonContainer>
+          <GhostButton textColor='#532800' onClick={() => setTableCollapsed(!isTableCollapsed)}>{isTableCollapsed ? 'Wczytaj więcej' : 'Pokaż mniej'}</GhostButton>
+        </TableButtonContainer>
+        <Subheader
+          marginTop={breakpoints.lg ? 80 : 110}
+          marginBottom={6}
+          textAlign="center"
+        >
+            NAGRODY
+        </Subheader>
+        <Headline
+          marginBottom={breakpoints.lg ? 20 : 40}
+          color="#532800"
+          textAlign="center"
+          fontSize={breakpoints.lg ? "30px" : "36px"}
+        >
+          <strong>NAGRODY DO ZGARNIĘCIA</strong><br/>W TYM KWARTALE
+        </Headline>
+        <Rewards>
+          <RewardItem>
+            <Img
+              fixed={query.reward.edges[1].node.childImageSharp.fixed}
+              alt=""
+            />
+            <RewardSeparator />
+            <RewardPosition>2 MIEJSCE</RewardPosition>
+            <RewardName>Zegarek marki lorem ipsum dolor</RewardName>
+          </RewardItem>
+          <RewardItem isWinner>
+            <Img
+              fixed={query.reward.edges[0].node.childImageSharp.fixed}
+              alt=""
+            />
+            <RewardSeparator />
+            <RewardPosition>1 MIEJSCE</RewardPosition>
+            <RewardName>Zegarek marki lorem ipsum dolor</RewardName>
+          </RewardItem>
+          <RewardItem>
+            <Img
+              fixed={query.reward.edges[2].node.childImageSharp.fixed}
+              alt=""
+            />
+            <RewardSeparator />
+            <RewardPosition>3 MIEJSCE</RewardPosition>
+            <RewardName>Zegarek marki lorem ipsum dolor</RewardName>
+          </RewardItem>
+        </Rewards>
       </Container>
       <Download />
     </Layout>
