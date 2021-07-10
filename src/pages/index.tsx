@@ -196,6 +196,7 @@ const TableButtonContainer = styled.div`
 const Rewards = styled.div`
   display: flex;
   flex-direction: ${(props) => (props.theme.screens.lg ? "column" : "row")};
+  align-items: flex-end;
   gap: 80px;
 `;
 
@@ -209,7 +210,7 @@ const RewardItem = styled.div<{ isWinner?: boolean }>`
       if (props.theme.screens.lg) {
         return css`order: -1`;
       }
-      return css`margin-bottom: 60px`;
+      return css`margin-bottom: 40px`;
     }
   }};
 `;
@@ -239,6 +240,12 @@ const RewardName = styled.div`
   line-height: 27px;
   color: #532800;
   text-align: center;
+`;
+
+const TopButtonsContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
 `;
 
 const App = () => {
@@ -372,7 +379,10 @@ const App = () => {
               <br />
               <strong>darmowego burgera uSzwagra24!</strong>
             </StyledPara>
-            <Button>Dołączam do promocji!</Button>
+            <TopButtonsContainer>
+              <Button variant="secondary">Dołączam do promocji!</Button>
+              <GhostButton>Top 3 użytkownicy promocji</GhostButton>
+            </TopButtonsContainer>
           </HeroTextContainer>
         </Container>
       </BackgroundImage>
